@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DogCard} from "@/components/DogCard";
@@ -9,6 +8,8 @@ import { Dog } from "@/types";
 import { api } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 
+import { useFavorites } from "@/contexts/favorites-context";
+
 
 
 const Search = () => {
@@ -16,7 +17,7 @@ const Search = () => {
   const location = useLocation();
   const { toast } = useToast();
   const [dogs, setDogs] = useState<Dog[]>([]);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  //const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [selectedBreeds, setSelectedBreeds] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -27,6 +28,8 @@ const Search = () => {
   const [isMatchDialogOpen, setIsMatchDialogOpen] = useState(false);
 
   const pageSize = 20;
+
+  const { favorites, toggleFavorite } = useFavorites();
 
   
 
@@ -81,7 +84,7 @@ const Search = () => {
   };
   
 
-  const toggleFavorite = (dogId: string) => {
+  /*const toggleFavorite = (dogId: string) => {
     setFavorites(prev => {
       const newFavorites = new Set(prev);
       if (newFavorites.has(dogId)) {
@@ -91,7 +94,7 @@ const Search = () => {
       }
       return newFavorites;
     });
-  };
+  };*/
 
   const handleGenerateMatch = async () => {
     try {

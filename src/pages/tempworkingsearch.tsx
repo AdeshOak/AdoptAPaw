@@ -1,7 +1,13 @@
 
+
+
+
+
+
+
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { DogCard } from "@/components/DogCard";
+import { useLocation, useNavigate } from "react-router-dom";
+import { DogCard} from "@/components/DogCard";
 import { SearchFilters } from "@/components/SearchFilters";
 import { Pagination } from "@/components/Pagination";
 import { MatchDialog } from "@/components/MatchDialog";
@@ -9,11 +15,16 @@ import { Dog } from "@/types";
 import { api } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 
-const tSearch = () => {
+import { useFavorites } from "@/contexts/favorites-context";
+
+
+
+const Search = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [dogs, setDogs] = useState<Dog[]>([]);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  //const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [selectedBreeds, setSelectedBreeds] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -24,6 +35,10 @@ const tSearch = () => {
   const [isMatchDialogOpen, setIsMatchDialogOpen] = useState(false);
 
   const pageSize = 20;
+
+  const { favorites, toggleFavorite } = useFavorites();
+
+  
 
   useEffect(() => {
     fetchDogs();
@@ -76,7 +91,7 @@ const tSearch = () => {
   };
   
 
-  const toggleFavorite = (dogId: string) => {
+  /*const toggleFavorite = (dogId: string) => {
     setFavorites(prev => {
       const newFavorites = new Set(prev);
       if (newFavorites.has(dogId)) {
@@ -86,7 +101,7 @@ const tSearch = () => {
       }
       return newFavorites;
     });
-  };
+  };*/
 
   const handleGenerateMatch = async () => {
     try {
@@ -137,11 +152,11 @@ const tSearch = () => {
 
 -center gap-4">
             <button
-              onClick={handleGenerateMatch}
+              onClick={() => navigate('/wishlist', { state: { favorites } })}
               className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
               disabled={favorites.size === 0}
             >
-              Generate Match ({favorites.size})
+              Wishlist ({favorites.size})
             </button>
             <button
               onClick={handleLogout}
@@ -207,4 +222,5 @@ const tSearch = () => {
   );
 };
 
-export default tSearch;
+export default Search;
+

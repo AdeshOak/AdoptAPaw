@@ -6,10 +6,12 @@ import Index from "./pages/Index";
 import Search from "./pages/Search";
 import NotFound from "./pages/NotFound";
 import WishlistPage from "./pages/WishlistPage";
+import { FavoritesProvider } from "@/contexts/favorites-context";
 
 const queryClient = new QueryClient();
 
 const App = () => (
+  <FavoritesProvider>
   <QueryClientProvider client={queryClient}>
     <Toaster />
     <BrowserRouter>
@@ -21,6 +23,7 @@ const App = () => (
       </Routes>
     </BrowserRouter>
   </QueryClientProvider>
+  </FavoritesProvider>
 );
 
 export default App;

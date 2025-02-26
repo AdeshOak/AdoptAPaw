@@ -6,15 +6,16 @@ import { Dog } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
 import { DogCard } from "@/components/DogCard";
 import { MatchDialog } from "@/components/MatchDialog";
+import { useFavorites } from "@/contexts/favorites-context";
 
 
 
 const WishlistPage = () => {
-    const location = useLocation();
+    /*const location = useLocation();
     const [favorites, setFavorites] = useState<Set<string>>(
       new Set(location.state?.favorites || [])
     );
-    const [wishlistDogs, setWishlistDogs] = useState<Dog[]>([]);
+    
     
     // Update favorites when navigation state changes
     useEffect(() => {
@@ -29,13 +30,19 @@ const WishlistPage = () => {
       setFavorites(newFavorites);
       // Update localStorage if needed
       localStorage.setItem("favorites", JSON.stringify(Array.from(newFavorites)));
-    };
+    };*/
+
+    const { favorites, toggleFavorite } = useFavorites();
+
+
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const [matchedDog, setMatchedDog] = useState<Dog | null>(null);
   const [isMatchDialogOpen, setIsMatchDialogOpen] = useState(false);
+  const [wishlistDogs, setWishlistDogs] = useState<Dog[]>([]);
+
 
 
   useEffect(() => {
@@ -130,7 +137,7 @@ const WishlistPage = () => {
         onClick={() => navigate('/search', { 
           state: { favorites: Array.from(favorites) }
         })}
-        className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg transition-colors"
+        className="mt-4 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90"
       >
         ← Back to Search
       </button>
@@ -138,13 +145,13 @@ const WishlistPage = () => {
 
 {matchedDog && (
         <MatchDialog
-          dog={matchedDog}
-          isOpen={isMatchDialogOpen}
-          onClose={() => {
-            setIsMatchDialogOpen(false);
-            setMatchedDog(null);
-          }}
-        />
+        dog={matchedDog}
+        isOpen={isMatchDialogOpen}
+        onClose={() => {
+          setIsMatchDialogOpen(false);
+          setMatchedDog(null);
+        }}
+      />
       )}
     </div>
   );

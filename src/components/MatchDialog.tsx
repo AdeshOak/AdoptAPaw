@@ -1,6 +1,6 @@
-
+// components/MatchDialog.tsx
 import { Dog } from "@/types";
-import { Dialog } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 
 interface MatchDialogProps {
   dog: Dog;
@@ -9,36 +9,60 @@ interface MatchDialogProps {
 }
 
 export const MatchDialog = ({ dog, isOpen, onClose }: MatchDialogProps) => {
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg max-w-md w-full overflow-hidden">
-          <div className="relative aspect-square">
-            <img
-              src={dog.img}
-              alt={dog.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="p-6 space-y-4">
-            <h3 className="text-2xl font-bold text-center">
-              Meet your perfect match!
-            </h3>
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="glass-card rounded-xl max-w-2xl w-full flex overflow-hidden animate-in fade-in-zoom">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors z-10"
+        >
+          <X className="w-6 h-6 text-gray-700" />
+        </button>
+
+        {/* Image Section */}
+        <div className="w-[40%] relative">
+          <img
+            src={dog.img}
+            alt={dog.name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+
+        {/* Content Section */}
+        <div className="w-[60%] p-8 flex flex-col justify-between">
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold">{dog.name}</h2>
+            
             <div className="space-y-2">
-              <p className="text-lg font-semibold">{dog.name}</p>
-              <p className="text-muted-foreground">{dog.breed}</p>
-              <p className="text-muted-foreground">{dog.age} years old</p>
-              <p className="text-muted-foreground">ZIP: {dog.zip_code}</p>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Breed:</span>
+                <span className="text-muted-foreground">{dog.breed}</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Age:</span>
+                <span className="text-muted-foreground">{dog.age} years</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Location:</span>
+                <span className="text-muted-foreground">ZIP {dog.zip_code}</span>
+              </div>
             </div>
-            <button
-              onClick={onClose}
-              className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Close
-            </button>
           </div>
+
+          {/* Adoption Button */}
+          <button
+            className="mt-6 w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Adopt your new pawbuddy! 🐾
+          </button>
         </div>
       </div>
-    </Dialog>
+    </div>
   );
 };
