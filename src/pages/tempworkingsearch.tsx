@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { DogCard} from "@/components/DogCard";
+import { useNavigate } from "react-router-dom";
+import { DogCard } from "@/components/DogCard";
 import { SearchFilters } from "@/components/SearchFilters";
 import { Pagination } from "@/components/Pagination";
 import { MatchDialog } from "@/components/MatchDialog";
@@ -9,11 +9,8 @@ import { Dog } from "@/types";
 import { api } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 
-
-
-const Search = () => {
+const tSearch = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const [dogs, setDogs] = useState<Dog[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -27,8 +24,6 @@ const Search = () => {
   const [isMatchDialogOpen, setIsMatchDialogOpen] = useState(false);
 
   const pageSize = 20;
-
-  
 
   useEffect(() => {
     fetchDogs();
@@ -142,11 +137,11 @@ const Search = () => {
 
 -center gap-4">
             <button
-              onClick={() => navigate('/wishlist', { state: { favorites } })}
+              onClick={handleGenerateMatch}
               className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
               disabled={favorites.size === 0}
             >
-              Wishlist ({favorites.size})
+              Generate Match ({favorites.size})
             </button>
             <button
               onClick={handleLogout}
@@ -212,4 +207,4 @@ const Search = () => {
   );
 };
 
-export default Search;
+export default tSearch;
