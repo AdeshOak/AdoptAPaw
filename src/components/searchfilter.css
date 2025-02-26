@@ -1,0 +1,14 @@
+/* For dropdown scrollbars */
+.max-h-60 {
+    max-height: 15rem;
+  }
+  
+  /* Prevent layout shift on dropdown */
+  .relative {
+    position: relative;
+  }
+  
+  /* Dropdown item hover state */
+  .hover\:bg-gray-100:hover {
+    background-color: #f3f4f6;
+  }
