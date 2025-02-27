@@ -4,6 +4,7 @@ import { createContext, useContext, useState, ReactNode } from "react";
 type FavoritesContextType = {
   favorites: Set<string>;
   toggleFavorite: (dogId: string) => void;
+  resetFavorites: () => void;
 };
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
@@ -11,11 +12,16 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("favorites");
+      const saved = sessionStorage.getItem("favorites");
       return new Set(saved ? JSON.parse(saved) : []);
     }
     return new Set();
   });
+
+  const resetFavorites = () => {
+    sessionStorage.removeItem("favorites");
+    setFavorites(new Set());
+  };
 
   const toggleFavorite = (dogId: string) => {
     setFavorites(prev => {
@@ -25,13 +31,15 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
       } else {
         newFavorites.add(dogId);
       }
-      localStorage.setItem("favorites", JSON.stringify(Array.from(newFavorites)));
+      sessionStorage.setItem("favorites", JSON.stringify(Array.from(newFavorites)));
       return newFavorites;
     });
   };
 
   return (
-    <FavoritesContext.Provider value={{ favorites, toggleFavorite }}>
+    <FavoritesContext.Provider 
+      value={{ favorites, toggleFavorite, resetFavorites }} // Add reset
+    >
       {children}
     </FavoritesContext.Provider>
   );

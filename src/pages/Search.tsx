@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DogCard} from "@/components/DogCard";
 import { SearchFilters } from "@/components/SearchFilters";
 import { Pagination } from "@/components/Pagination";
@@ -9,15 +9,14 @@ import { api } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 
 import { useFavorites } from "@/contexts/favorites-context";
+import { BreedModal } from "@/components/BreedModal";
 
 
 
 const Search = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const [dogs, setDogs] = useState<Dog[]>([]);
-  //const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [selectedBreeds, setSelectedBreeds] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -27,9 +26,11 @@ const Search = () => {
   const [matchedDog, setMatchedDog] = useState<Dog | null>(null);
   const [isMatchDialogOpen, setIsMatchDialogOpen] = useState(false);
 
+  const [selectedBreedForModal, setSelectedBreedForModal] = useState<string | null>(null);
+  const [isBreedModalOpen, setIsBreedModalOpen] = useState(false);
+
   const pageSize = 20;
 
-  const { favorites, toggleFavorite } = useFavorites();
 
   
 
@@ -40,13 +41,30 @@ const Search = () => {
   const fetchDogs = async () => {
     try {
       setIsLoading(true);
-      const searchResponse = await api.searchDogs({
+      const searchParams = {
         breeds: selectedBreeds,
         zipCodes: selectedLocations,
         sort: `breed:${sortOrder}`,
         size: pageSize,
         from: (currentPage - 1) * pageSize,
-      });
+      };
+  
+      // If showing breed sections, get more results
+      if (selectedBreeds.length > 0) {
+        searchParams.size = 100; // Get more dogs to fill multiple breed sections
+      }
+
+
+
+      /*const searchResponse = await api.searchDogs({
+        breeds: selectedBreeds,
+        zipCodes: selectedLocations,
+        sort: `breed:${sortOrder}`,
+        size: pageSize,
+        from: (currentPage - 1) * pageSize,
+      });*/
+
+      const searchResponse = await api.searchDogs(searchParams);
 
       const dogsData = await api.getDogs(searchResponse.resultIds);
       setDogs(dogsData);
@@ -83,19 +101,6 @@ const Search = () => {
     setCurrentPage(1);
   };
   
-
-  /*const toggleFavorite = (dogId: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(dogId)) {
-        newFavorites.delete(dogId);
-      } else {
-        newFavorites.add(dogId);
-      }
-      return newFavorites;
-    });
-  };*/
-
   const handleGenerateMatch = async () => {
     try {
       const favoriteIds = Array.from(favorites);
@@ -125,6 +130,7 @@ const Search = () => {
   const handleLogout = async () => {
     try {
       await api.logout();
+      resetFavorites();
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -136,7 +142,10 @@ const Search = () => {
     }
   };
 
+  const { favorites, toggleFavorite, resetFavorites } = useFavorites();
+
   return (
+    
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -181,6 +190,40 @@ const Search = () => {
               />
             ))}
           </div>
+        ) : selectedBreeds.length > 0 ? (
+          <div className="space-y-8">
+            {selectedBreeds.map((breed) => {
+              const breedDogs = dogs.filter(dog => dog.breed === breed);
+              return (
+                <div key={breed} className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-semibold capitalize">{breed}</h2>
+                    <button
+                      onClick={() => {
+                        setSelectedBreedForModal(breed);
+                        setIsBreedModalOpen(true);
+                      }}
+                      className="text-primary hover:text-primary/80 font-medium underline"
+                    >
+                      View all {breed} dogs →
+                    </button>
+                  </div>
+      
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {breedDogs.slice(0, 8).map((dog) => (
+                      <DogCard
+                        key={dog.id}
+                        dog={dog}
+                        isFavorite={favorites.has(dog.id)}
+                        onToggleFavorite={() => toggleFavorite(dog.id)}
+                      />
+                    ))}
+                  </div>
+                  <div className="border-t my-6" />
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
             {dogs.map((dog) => (
@@ -194,11 +237,27 @@ const Search = () => {
           </div>
         )}
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        {/* Updated Pagination - only show when no breeds selected */}
+  {selectedBreeds.length === 0 && totalPages > 1 && (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={setCurrentPage}
+    />
+  )}
+
+  {/* Breed Modal */}
+  {selectedBreedForModal && (
+    <BreedModal
+      breed={selectedBreedForModal}
+      locations={selectedLocations}
+      isOpen={isBreedModalOpen}
+      onClose={() => {
+        setIsBreedModalOpen(false);
+        setSelectedBreedForModal(null);
+      }}
+    />
+  )}
       </main>
 
       {matchedDog && (
