@@ -33,7 +33,6 @@ const Search = () => {
   const [isBreedModalOpen, setIsBreedModalOpen] = useState(false);
   const [breedSections, setBreedSections] = useState<Record<string, Dog[]>>({});
   const [selectedDogDetail, setSelectedDogDetail] = useState<Dog | null>(null);
-  const [filterZips, setFilterZips] = useState<string[]>([]);
 
   const pageSize = 20;
 
@@ -237,6 +236,7 @@ const fetchDogs = async () => {
                         dog={dog}
                         isFavorite={favorites.has(dog.id)}
                         onToggleFavorite={() => toggleFavorite(dog.id)}
+                        onClick={() => setSelectedDogDetail(dog)}
                       />
                     ))}
                   </div>

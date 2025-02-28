@@ -5,6 +5,7 @@ import { DogCard } from "@/components/DogCard";
 import { Pagination } from "@/components/Pagination";
 import { X } from "lucide-react";
 import { useFavorites } from "@/contexts/favorites-context";
+import { DogDetailModal } from "@/components/DogDetailModal";
 
 interface BreedModalProps {
   breed: string;
@@ -18,6 +19,8 @@ interface BreedModalProps {
     const [modalCurrentPage, setModalCurrentPage] = useState(1);
     const [modalTotalPages, setModalTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedDogDetail, setSelectedDogDetail] = useState<Dog | null>(null);
+
     const pageSize = 20;
 
     const { favorites, toggleFavorite, resetFavorites } = useFavorites();
@@ -75,6 +78,7 @@ interface BreedModalProps {
                     dog={dog}
                     isFavorite={favorites.has(dog.id)}
                     onToggleFavorite={() => toggleFavorite(dog.id)}
+                    onClick={() => setSelectedDogDetail(dog)}
                   />
                 ))}
               </div>
@@ -85,6 +89,16 @@ interface BreedModalProps {
               />
             </>
           )}
+
+          {/*Add new modal in return section*/}
+{selectedDogDetail && (
+  <DogDetailModal
+    dog={selectedDogDetail}
+    isFavorite={favorites.has(selectedDogDetail.id)}
+    onClose={() => setSelectedDogDetail(null)}
+    onToggleFavorite={() => toggleFavorite(selectedDogDetail.id)}
+  />
+)}
         </div>
       </div>
     </div>
