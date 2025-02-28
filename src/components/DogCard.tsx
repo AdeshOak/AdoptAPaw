@@ -8,8 +8,12 @@ interface DogCardProps {
   onToggleFavorite: () => void;
 }
 
-export const DogCard = ({ dog, isFavorite, onToggleFavorite }: DogCardProps) => {
+export const DogCard = ({ dog, isFavorite, onToggleFavorite, onClick }: DogCardProps & { onClick?: () => void }) => {
   return (
+    <div 
+      className="border rounded-lg p-4 relative hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={onClick}
+    >
     <div className="glass-card rounded-lg overflow-hidden transition-transform hover:scale-[1.02] fade-in">
       <div className="relative aspect-square">
         <img
@@ -19,7 +23,10 @@ export const DogCard = ({ dog, isFavorite, onToggleFavorite }: DogCardProps) => 
           loading="lazy"
         />
         <button
-          onClick={onToggleFavorite}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent parent onClick from firing
+            onToggleFavorite();
+          }}
           className="absolute top-4 right-4 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors"
         >
           <Heart
@@ -37,6 +44,7 @@ export const DogCard = ({ dog, isFavorite, onToggleFavorite }: DogCardProps) => 
         <p className="text-sm text-muted-foreground">{dog.breed}</p>
         <p className="text-sm text-muted-foreground">ZIP: {dog.zip_code}</p>
       </div>
+    </div>
     </div>
   );
 };

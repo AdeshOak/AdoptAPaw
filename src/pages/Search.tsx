@@ -10,6 +10,9 @@ import { useToast } from "@/components/ui/use-toast";
 
 import { useFavorites } from "@/contexts/favorites-context";
 import { BreedModal } from "@/components/BreedModal";
+import { DogDetailModal } from "@/components/DogDetailModal";
+
+import { useSearchFilters } from "@/contexts/search-filters-context";
 
 
 
@@ -17,9 +20,9 @@ const Search = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [dogs, setDogs] = useState<Dog[]>([]);
-  const [selectedBreeds, setSelectedBreeds] = useState<string[]>([]);
+  /*const [selectedBreeds, setSelectedBreeds] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");*/
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,15 +32,34 @@ const Search = () => {
   const [selectedBreedForModal, setSelectedBreedForModal] = useState<string | null>(null);
   const [isBreedModalOpen, setIsBreedModalOpen] = useState(false);
   const [breedSections, setBreedSections] = useState<Record<string, Dog[]>>({});
+  const [selectedDogDetail, setSelectedDogDetail] = useState<Dog | null>(null);
+  const [filterZips, setFilterZips] = useState<string[]>([]);
 
   const pageSize = 20;
 
 
+  const { 
+    filters: { breeds: selectedBreeds, locations: selectedLocations, sortOrder }, 
+    setFilters 
+  } = useSearchFilters();
+
+  // Update state setters to use context
+  const setSelectedBreeds = (breeds: string[]) => 
+    setFilters(prev => ({ ...prev, breeds }));
   
+  const setSelectedLocations = (locations: string[]) => 
+    setFilters(prev => ({ ...prev, locations }));
+  
+  const setSortOrder = (order: "asc" | "desc") => 
+    setFilters(prev => ({ ...prev, sortOrder: order }));
+
+
 
   useEffect(() => {
     fetchDogs();
   }, [selectedBreeds, selectedLocations, sortOrder, currentPage]);
+
+
 
     // Modified fetchDogs function
 const fetchDogs = async () => {
@@ -45,6 +67,7 @@ const fetchDogs = async () => {
     setIsLoading(true);
     
     if (selectedBreeds.length > 0) {
+
       // Fetch dogs for each breed separately
       const breedPromises = selectedBreeds.map(async (breed) => {
         const response = await api.searchDogs({
@@ -128,6 +151,10 @@ const fetchDogs = async () => {
     }
   };
 
+  console.log(sortOrder)
+
+  
+
   const { favorites, toggleFavorite, resetFavorites } = useFavorites();
 
   return (
@@ -178,7 +205,13 @@ const fetchDogs = async () => {
           </div>
         ) : selectedBreeds.length > 0 ? (
           <div className="space-y-8">
-            {selectedBreeds.map((breed) => {
+            {selectedBreeds
+            .slice()
+            // Apply sortOrder to breed sorting
+            .sort((a, b) => 
+              sortOrder === "asc" ? a.localeCompare(b) : b.localeCompare(a)
+            )
+            .map((breed) => {
               const breedDogs = breedSections[breed] || [];
               return (
                 <div key={breed} className="space-y-6">
@@ -220,6 +253,7 @@ const fetchDogs = async () => {
                 dog={dog}
                 isFavorite={favorites.has(dog.id)}
                 onToggleFavorite={() => toggleFavorite(dog.id)}
+                onClick={() => setSelectedDogDetail(dog)}
               />
             ))}
           </div>
@@ -238,7 +272,7 @@ const fetchDogs = async () => {
   {selectedBreedForModal && (
     <BreedModal
       breed={selectedBreedForModal}
-      locations={selectedLocations}
+      locations={selectedLocations} 
       isOpen={isBreedModalOpen}
       onClose={() => {
         setIsBreedModalOpen(false);
@@ -246,6 +280,16 @@ const fetchDogs = async () => {
       }}
     />
   )}
+
+{/*Add new modal in return section*/}
+{selectedDogDetail && (
+  <DogDetailModal
+    dog={selectedDogDetail}
+    isFavorite={favorites.has(selectedDogDetail.id)}
+    onClose={() => setSelectedDogDetail(null)}
+    onToggleFavorite={() => toggleFavorite(selectedDogDetail.id)}
+  />
+)}
       </main>
 
       {matchedDog && (

@@ -103,7 +103,7 @@ export const SearchFilters = ({
         const uniqueResults = Array.from(
           new Map(results.map(location => [location.zip_code, location])).values()
         );
-
+        console.log(uniqueResults)
         setLocations(uniqueResults);
       } catch (error) {
         console.error("Failed to search locations:", error);
