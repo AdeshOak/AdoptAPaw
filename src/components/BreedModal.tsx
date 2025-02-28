@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { DogCard } from "@/components/DogCard";
 import { Pagination } from "@/components/Pagination";
 import { X } from "lucide-react";
+import { useFavorites } from "@/contexts/favorites-context";
 
 interface BreedModalProps {
   breed: string;
@@ -12,53 +13,50 @@ interface BreedModalProps {
   onClose: () => void;
 }
 
-export const BreedModal = ({ breed, locations, isOpen, onClose }: BreedModalProps) => {
-  const [dogs, setDogs] = useState<Dog[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const pageSize = 20;
+  export const BreedModal = ({ breed, locations, isOpen, onClose }: BreedModalProps) => {
+    const [modalDogs, setModalDogs] = useState<Dog[]>([]);
+    const [modalCurrentPage, setModalCurrentPage] = useState(1);
+    const [modalTotalPages, setModalTotalPages] = useState(1);
+    const [isLoading, setIsLoading] = useState(true);
+    const pageSize = 20;
 
-  useEffect(() => {
-    const fetchBreedDogs = async () => {
-      if (!isOpen) return;
-      
-      try {
-        setIsLoading(true);
-        const response = await api.searchDogs({
-          breeds: [breed],
-          zipCodes: locations,
-          size: pageSize,
-          from: (currentPage - 1) * pageSize,
-        });
-        
-        const dogsData = await api.getDogs(response.resultIds);
-        setDogs(dogsData);
-        setTotalPages(Math.ceil(response.total / pageSize));
-      } catch (error) {
-        console.error("Failed to fetch breed dogs:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchBreedDogs();
-  }, [breed, locations, currentPage, isOpen]);
-
-  if (!isOpen) return null;
+    const { favorites, toggleFavorite, resetFavorites } = useFavorites();
+  
+    useEffect(() => {
+      const fetchModalDogs = async () => {
+        try {
+          setIsLoading(true);
+          const response = await api.searchDogs({
+            breeds: [breed],
+            zipCodes: locations,
+            size: pageSize,
+            from: (modalCurrentPage - 1) * pageSize
+          });
+          const dogs = await api.getDogs(response.resultIds);
+          setModalDogs(dogs);
+          setModalTotalPages(Math.ceil(response.total / pageSize));
+        } catch (error) {
+          console.error("Failed to fetch modal dogs:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+      if (isOpen) fetchModalDogs();
+    }, [breed, locations, modalCurrentPage, isOpen]);
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <button
+      onClick={onClose}
+      className="fixed top-4 right-4 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors z-50"
+    >
+      <X className="h-6 w-6 text-gray-700" />
+    </button>
       <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">All {breed} Dogs</h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full"
-            >
-              <X className="h-6 w-6" />
-            </button>
           </div>
 
           {isLoading ? (
@@ -70,19 +68,19 @@ export const BreedModal = ({ breed, locations, isOpen, onClose }: BreedModalProp
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {dogs.map((dog) => (
+                {modalDogs.map((dog) => (
                   <DogCard
                     key={dog.id}
                     dog={dog}
-                    isFavorite={false}
-                    onToggleFavorite={() => {}}
+                    isFavorite={favorites.has(dog.id)}
+                    onToggleFavorite={() => toggleFavorite(dog.id)}
                   />
                 ))}
               </div>
               <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
+                currentPage={modalCurrentPage}
+                totalPages={modalTotalPages}
+                onPageChange={setModalCurrentPage}
               />
             </>
           )}

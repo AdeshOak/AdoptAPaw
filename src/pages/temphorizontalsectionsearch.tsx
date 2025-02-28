@@ -28,7 +28,6 @@ const Search = () => {
 
   const [selectedBreedForModal, setSelectedBreedForModal] = useState<string | null>(null);
   const [isBreedModalOpen, setIsBreedModalOpen] = useState(false);
-  const [breedSections, setBreedSections] = useState<Record<string, Dog[]>>({});
 
   const pageSize = 20;
 
@@ -39,47 +38,38 @@ const Search = () => {
     fetchDogs();
   }, [selectedBreeds, selectedLocations, sortOrder, currentPage]);
 
-    // Modified fetchDogs function
-const fetchDogs = async () => {
-  try {
-    setIsLoading(true);
-    
-    if (selectedBreeds.length > 0) {
-      // Fetch dogs for each breed separately
-      const breedPromises = selectedBreeds.map(async (breed) => {
-        const response = await api.searchDogs({
-          breeds: [breed],
-          zipCodes: selectedLocations,
-          sort: `breed:${sortOrder}`,
-          size: 8, // Get exactly 8 per breed
-          from: 0
-        });
-        const dogs = await api.getDogs(response.resultIds);
-        return { breed, dogs };
-      });
-
-      const breedResults = await Promise.all(breedPromises);
-      const sections = breedResults.reduce((acc, result) => {
-        acc[result.breed] = result.dogs;
-        return acc;
-      }, {} as Record<string, Dog[]>);
-      
-      setBreedSections(sections);
-      setDogs([]); // Clear main dogs array
-    } else {
-      // Original fetch for all dogs
-      const response = await api.searchDogs({
-        breeds: [],
+  const fetchDogs = async () => {
+    try {
+      setIsLoading(true);
+      const searchParams = {
+        breeds: selectedBreeds,
         zipCodes: selectedLocations,
         sort: `breed:${sortOrder}`,
         size: pageSize,
-        from: (currentPage - 1) * pageSize
-      });
-      const dogsData = await api.getDogs(response.resultIds);
+        from: (currentPage - 1) * pageSize,
+      };
+  
+      // If showing breed sections, get more results
+      if (selectedBreeds.length > 0) {
+        searchParams.size = 100; // Get more dogs to fill multiple breed sections
+      }
+
+
+
+      /*const searchResponse = await api.searchDogs({
+        breeds: selectedBreeds,
+        zipCodes: selectedLocations,
+        sort: `breed:${sortOrder}`,
+        size: pageSize,
+        from: (currentPage - 1) * pageSize,
+      });*/
+
+      const searchResponse = await api.searchDogs(searchParams);
+
+      const dogsData = await api.getDogs(searchResponse.resultIds);
       setDogs(dogsData);
-      setTotalPages(Math.ceil(response.total / pageSize));
-    }
-  }  catch (error) {
+      setTotalPages(Math.ceil(searchResponse.total / pageSize));
+    } catch (error) {
       console.error("Failed to fetch dogs:", error);
       toast({
         title: "Error",
@@ -111,7 +101,31 @@ const fetchDogs = async () => {
     setCurrentPage(1);
   };
   
+  const handleGenerateMatch = async () => {
+    try {
+      const favoriteIds = Array.from(favorites);
+      if (favoriteIds.length === 0) {
+        toast({
+          title: "No favorites selected",
+          description: "Please select at least one dog to generate a match.",
+          variant: "destructive",
+        });
+        return;
+      }
 
+      const { match } = await api.generateMatch(favoriteIds);
+      const [matchedDogData] = await api.getDogs([match]);
+      setMatchedDog(matchedDogData);
+      setIsMatchDialogOpen(true);
+    } catch (error) {
+      console.error("Failed to generate match:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate match. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -179,26 +193,24 @@ const fetchDogs = async () => {
         ) : selectedBreeds.length > 0 ? (
           <div className="space-y-8">
             {selectedBreeds.map((breed) => {
-              const breedDogs = breedSections[breed] || [];
+              const breedDogs = dogs.filter(dog => dog.breed === breed);
               return (
                 <div key={breed} className="space-y-6">
                   <div className="flex justify-between items-center">
                     <h2 className="text-2xl font-semibold capitalize">{breed}</h2>
-                    {breedDogs.length > 0 && (
-                      <button
-                        onClick={() => {
-                          setSelectedBreedForModal(breed);
-                          setIsBreedModalOpen(true);
-                        }}
-                        className="text-primary hover:text-primary/80 font-medium underline"
-                      >
-                        View all {breed} dogs →
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        setSelectedBreedForModal(breed);
+                        setIsBreedModalOpen(true);
+                      }}
+                      className="text-primary hover:text-primary/80 font-medium underline"
+                    >
+                      View all {breed} dogs →
+                    </button>
                   </div>
-        
+      
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {breedDogs.map((dog) => (
+                    {breedDogs.slice(0, 8).map((dog) => (
                       <DogCard
                         key={dog.id}
                         dog={dog}
