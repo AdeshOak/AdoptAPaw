@@ -1,4 +1,3 @@
-// contexts/favorites-context.tsx
 import { createContext, useContext, useState, ReactNode } from "react";
 
 type FavoritesContextType = {

@@ -157,7 +157,16 @@ const fetchDogs = async () => {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">AdoptAPaw</h1>
+        <div className="flex items-center gap-3">
+        {/* Logo */}
+        <img 
+            src="/browserlogo.png" 
+            alt="AdoptAPaw Logo"
+            className="h-10 w-10"
+          />
+        {/* App Name */}
+        <h1 className="text-2xl font-bold text-primary">AdoptAPaw</h1>
+        </div>
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/wishlist', { state: { favorites } })}

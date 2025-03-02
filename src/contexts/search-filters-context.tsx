@@ -1,4 +1,3 @@
-// contexts/search-filters-context.tsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type SearchFilters = {

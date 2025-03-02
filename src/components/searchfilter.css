@@ -1,7 +1,7 @@
-/* For dropdown scrollbars */
-.max-h-60 {
-    max-height: 15rem;
-  }
+  /* For dropdown scrollbars */
+  .max-h-60 {
+      max-height: 15rem;
+    }
   
   /* Prevent layout shift on dropdown */
   .relative {
