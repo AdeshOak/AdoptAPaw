@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { Dog } from "@/types";
+import { api } from "@/lib/api";
+
+//import required UI components
 import { DogCard} from "@/components/DogCard";
 import { SearchFilters } from "@/components/SearchFilters";
 import { Pagination } from "@/components/Pagination";
-import { MatchDialog } from "@/components/MatchDialog";
-import { Dog } from "@/types";
-import { api } from "@/lib/api";
-import { useToast } from "@/components/ui/use-toast";
-
-import { useFavorites } from "@/contexts/favorites-context";
 import { BreedModal } from "@/components/BreedModal";
 import { DogDetailModal } from "@/components/DogDetailModal";
+import { useToast } from "@/components/ui/use-toast";
 
+//import required contexts 
+import { useFavorites } from "@/contexts/favorites-context";
 import { useSearchFilters } from "@/contexts/search-filters-context";
 
 
@@ -20,15 +22,9 @@ const Search = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [dogs, setDogs] = useState<Dog[]>([]);
-  /*const [selectedBreeds, setSelectedBreeds] = useState<string[]>([]);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");*/
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [matchedDog, setMatchedDog] = useState<Dog | null>(null);
-  const [isMatchDialogOpen, setIsMatchDialogOpen] = useState(false);
-
   const [selectedBreedForModal, setSelectedBreedForModal] = useState<string | null>(null);
   const [isBreedModalOpen, setIsBreedModalOpen] = useState(false);
   const [breedSections, setBreedSections] = useState<Record<string, Dog[]>>({});
@@ -60,7 +56,7 @@ const Search = () => {
 
 
 
-    // Modified fetchDogs function
+// Modified fetchDogs function for fetching according to breed filters selected and one singular dog array separately
 const fetchDogs = async () => {
   try {
     setIsLoading(true);
@@ -150,7 +146,7 @@ const fetchDogs = async () => {
     }
   };
 
-  console.log(sortOrder)
+  //console.log(sortOrder)
 
   
 
@@ -162,9 +158,7 @@ const fetchDogs = async () => {
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-primary">AdoptAPaw</h1>
-          <div className="flex items
-
--center gap-4">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/wishlist', { state: { favorites } })}
               className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
@@ -203,10 +197,10 @@ const fetchDogs = async () => {
             ))}
           </div>
         ) : selectedBreeds.length > 0 ? (
+          //Show top 8 dogs of each breed in selected sortorder(for breed name) with a separate view all button
           <div className="space-y-8">
             {selectedBreeds
             .slice()
-            // Apply sortOrder to breed sorting
             .sort((a, b) => 
               sortOrder === "asc" ? a.localeCompare(b) : b.localeCompare(a)
             )
@@ -246,6 +240,7 @@ const fetchDogs = async () => {
             })}
           </div>
         ) : (
+          //Default Mapping of all dogs when no filter is selected
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
             {dogs.map((dog) => (
               <DogCard
@@ -259,49 +254,38 @@ const fetchDogs = async () => {
           </div>
         )}
 
-        {/* Updated Pagination - only show when no breeds selected */}
-  {selectedBreeds.length === 0 && totalPages > 1 && (
-    <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={setCurrentPage}
-    />
-  )}
+      {/* Pagination - only show this when no breeds selected */}
+      {selectedBreeds.length === 0 && totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
 
-  {/* Breed Modal */}
-  {selectedBreedForModal && (
-    <BreedModal
-      breed={selectedBreedForModal}
-      locations={selectedLocations} 
-      isOpen={isBreedModalOpen}
-      onClose={() => {
-        setIsBreedModalOpen(false);
-        setSelectedBreedForModal(null);
-      }}
-    />
-  )}
-
-{/*Add new modal in return section*/}
-{selectedDogDetail && (
-  <DogDetailModal
-    dog={selectedDogDetail}
-    isFavorite={favorites.has(selectedDogDetail.id)}
-    onClose={() => setSelectedDogDetail(null)}
-    onToggleFavorite={() => toggleFavorite(selectedDogDetail.id)}
-  />
-)}
-      </main>
-
-      {matchedDog && (
-        <MatchDialog
-          dog={matchedDog}
-          isOpen={isMatchDialogOpen}
+      {/* Breed Modal - popup to show all dogs of the dog breed for which we click View all  */}
+      {selectedBreedForModal && (
+        <BreedModal
+          breed={selectedBreedForModal}
+          locations={selectedLocations} 
+          isOpen={isBreedModalOpen}
           onClose={() => {
-            setIsMatchDialogOpen(false);
-            setMatchedDog(null);
+            setIsBreedModalOpen(false);
+            setSelectedBreedForModal(null);
           }}
         />
       )}
+
+      {/*Popup to show dog card in zoomed view on click*/}
+      {selectedDogDetail && (
+        <DogDetailModal
+          dog={selectedDogDetail}
+          isFavorite={favorites.has(selectedDogDetail.id)}
+          onClose={() => setSelectedDogDetail(null)}
+          onToggleFavorite={() => toggleFavorite(selectedDogDetail.id)}
+        />
+      )}
+      </main>
     </div>
   );
 };

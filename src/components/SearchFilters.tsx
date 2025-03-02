@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { Location } from "@/types";
-//import { Search } from "lucide-react";
 import { Filter, X, Search } from "lucide-react";
 import './searchfilter.css'
 

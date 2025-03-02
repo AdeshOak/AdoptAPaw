@@ -25,29 +25,24 @@ const Index = () => {
     <div 
       className="min-h-screen flex items-center justify-center bg-cover bg-center"
       style={{
-        backgroundImage: `url('/img-4.jpg')`,
+        backgroundImage: `url('/loginbg-poodle.jpg')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Login Form - Centered */}
+      {/* Login Form - Centered on the page*/}
       <div className="w-full max-w-md p-8 bg-white bg-opacity-90 shadow-lg rounded-lg">
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-2 text-primary">AdoptAPaw</h1>
-          {/*<p className="text-lg text-muted-foreground mb-8"></p>*/}
         </div>
 
         <div className="space-y-2 mb-8">
-          {/*<h2 className="text-2xl font-bold text-foreground text-center">
-            Find your perfect companion & make their life
-    </h2>*/}
-          <p className="text-lg text-foreground text-center">
+        <p className="text-lg text-foreground text-center">
           Find your perfect companion & make their life
           </p>
+          <LoginForm />
         </div>
-
-        <LoginForm />
       </div>
     </div>
   );
