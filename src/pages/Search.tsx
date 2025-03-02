@@ -61,7 +61,7 @@ const fetchDogs = async () => {
   try {
     setIsLoading(true);
     
-    if (selectedBreeds.length > 0) {
+    if (selectedBreeds.length > 1) {
 
       // Fetch dogs for each breed separately
       const breedPromises = selectedBreeds.map(async (breed) => {
@@ -87,7 +87,7 @@ const fetchDogs = async () => {
     } else {
       // Original fetch for all dogs
       const response = await api.searchDogs({
-        breeds: [],
+        breeds: selectedBreeds,
         zipCodes: selectedLocations,
         sort: `breed:${sortOrder}`,
         size: pageSize,
@@ -196,7 +196,7 @@ const fetchDogs = async () => {
               />
             ))}
           </div>
-        ) : selectedBreeds.length > 0 ? (
+        ) : selectedBreeds.length > 1 ? (
           //Show top 8 dogs of each breed in selected sortorder(for breed name) with a separate view all button
           <div className="space-y-8">
             {selectedBreeds
@@ -255,7 +255,7 @@ const fetchDogs = async () => {
         )}
 
       {/* Pagination - only show this when no breeds selected */}
-      {selectedBreeds.length === 0 && totalPages > 1 && (
+      {selectedBreeds.length <= 1 && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

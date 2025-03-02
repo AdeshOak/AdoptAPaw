@@ -33,9 +33,7 @@ export const SearchFilters = ({
   const [locationSearchTerm, setLocationSearchTerm] = useState("");
   const [locations, setLocations] = useState<Location[]>([]);
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
-
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-
   const [showBreedDropdown, setShowBreedDropdown] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
@@ -48,6 +46,7 @@ export const SearchFilters = ({
     onClearFilters(); // Tell parent to refresh data
   };
 
+  //fetch for breeds
   useEffect(() => {
     const fetchBreeds = async () => {
       try {
@@ -65,6 +64,8 @@ export const SearchFilters = ({
     fetchBreeds();
   }, []);
 
+
+  //fetch for locations - allowed state, city, zipcode
   useEffect(() => {
     const searchLocations = async () => {
       if (locationSearchTerm.length < 2) {
@@ -193,9 +194,6 @@ export const SearchFilters = ({
                 Clear Locations
               </button>
 
-
-
-
                 <button
                   onClick={clearFilters}
                   className="text-destructive hover:text-destructive/80 px-3 py-1 rounded-lg"
@@ -212,10 +210,8 @@ export const SearchFilters = ({
               </div>
             </div>
   
-            
 
-
-            {/* Breed Search with Autocomplete */}
+            {/* Breed Search with Autocomplete dropdown */}
           <div className="space-y-4 mb-6 relative">
             <label className="block text-sm font-medium text-gray-700">
               Search Breeds
@@ -250,7 +246,7 @@ export const SearchFilters = ({
               )}
             </div>
             
-            {/* Selected Breeds */}
+            {/* Selected Breeds - chips*/}
             <div className="flex flex-wrap gap-2">
               {selectedBreeds.map((breed) => (
                 <span
@@ -270,7 +266,7 @@ export const SearchFilters = ({
             </div>
           </div>
 
-          {/* Location Search with Autocomplete */}
+          {/* Location Search with Autocomplete dropdown */}
           <div className="space-y-4 relative">
             <label className="block text-sm font-medium text-gray-700">
               Search Locations
@@ -311,7 +307,7 @@ export const SearchFilters = ({
               )}
             </div>
 
-            {/* Selected Locations */}
+            {/* Selected Locations - chips */}
             <div className="flex flex-wrap gap-2">
               {selectedLocations.map((zip) => {
                 const location = locations.find(l => l.zip_code === zip);
@@ -338,7 +334,6 @@ export const SearchFilters = ({
     )}
 
 
-  
       {/* Active Filters Preview */}
       {!isFiltersOpen && (selectedBreeds.length > 0 || selectedLocations.length > 0) && (
         <div className="flex flex-wrap gap-2">
