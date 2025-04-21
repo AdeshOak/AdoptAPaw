@@ -1,9 +1,9 @@
-# 🐶 Fetch Dog Adoption Portal
+# 🐶 AdoptAPaw - Dog Adoption Portal
 
-Welcome to the **Fetch Frontend Take-Home Exercise** — a dog adoption website built with love to help connect adorable shelter dogs with their forever homes.
+Welcome to the **AdoptAPaw** — a dog adoption website built with love to help connect adorable shelter dogs with their forever homes.
 
 ## 🚀 Live Site
-[Visit the Website Here](https://your-deployment-link.com)
+[Visit the Website Here](https://adopt-a-paw-ten.vercel.app/)
 
 ## 📸 Preview
 ![App Preview](./screenshot.png)
@@ -28,8 +28,8 @@ This project is a fully functional frontend application built to demonstrate pro
 - **Axios** for HTTP requests
 - **Tailwind CSS** for UI styling
 - **React Query** for async data and caching
-- **Vite** or **Create React App** (depending on setup)
-- **Netlify / Vercel** for deployment
+- **Vite** 
+- **Vercel** for deployment
 
 ---
 
@@ -50,7 +50,7 @@ This project is a fully functional frontend application built to demonstrate pro
 Clone the repo and run it locally:
 
 ```bash
-git clone https://github.com/your-username/fetch-dog-adoption.git
-cd fetch-dog-adoption
+git clone https://github.com/AdeshOak/AdoptAPaw.git
+cd AdoptAPaw
 npm install
 npm run dev
